@@ -8,12 +8,12 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 from time import sleep
 from random import random
-
+import re
 #run selenium headless
 from pyvirtualdisplay import Display
 
 #debugging
-import ipdb as pdb
+import pdb
 
 """
 	Function which accepts URL and returns BS object
@@ -27,7 +27,14 @@ def hit_page(link):
 	Function which takes lyric text and strips of all formatting
 """
 def raw_text(text):
-	return ''.join(s for s in text if ord(s)>31 and ord(s)<126)
+	#make lower case
+	text = text.lower()
+	#remove rap genius annotations
+	text = re.sub(r'\[(.*)\]',"",text)
+	#remove extra whitespace
+	text = re.sub(r'\s\s+',' ',text)
+	text = ' '.join(text.split())
+	return text
 
 """
 	Function which scrapes the top 388 rap albums' artist form Rate Your Music
@@ -84,6 +91,5 @@ def get_rap_lyrics(song_link):
 		text += source.text
 	text = raw_text(text)
 	driver.close()
-	pdb.set_trace()
-
-get_rap_lyrics("http://genius.com/1858100/Public-enemy-fight-the-power/Yet-our-best-trained-best-educated-best-equipped-best-prepared-troops-refuse-to-fight-as-a-matter-of-fact-its-safe-to-say-that-they-would-rather-switch-than-fight")
+	return text
+	
