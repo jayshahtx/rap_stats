@@ -24,6 +24,12 @@ def hit_page(link):
 	return BeautifulSoup(page)
 
 """
+	Function which takes lyric text and strips of all formatting
+"""
+def raw_text(text):
+	return ''.join(s for s in text if ord(s)>31 and ord(s)<126)
+
+"""
 	Function which scrapes the top 388 rap albums' artist form Rate Your Music
 """
 def get_rap_artists():
@@ -72,13 +78,12 @@ def get_rap_lyrics(song_link):
 	sleep(2*random()) # fake a human
 
 	lyrics = driver.find_elements_by_class_name('lyrics')
+	text = ""
 	for lyric in lyrics:
 		source = BeautifulSoup(lyric.get_attribute('innerHTML'))
-		text = source.text
+		text += source.text
+	text = raw_text(text)
 	driver.close()
-
-
-	# source = hit_page(song_link)
-	# source.findAll('div',attrs={'class':'lyrics_container'})
+	pdb.set_trace()
 
 get_rap_lyrics("http://genius.com/1858100/Public-enemy-fight-the-power/Yet-our-best-trained-best-educated-best-equipped-best-prepared-troops-refuse-to-fight-as-a-matter-of-fact-its-safe-to-say-that-they-would-rather-switch-than-fight")
