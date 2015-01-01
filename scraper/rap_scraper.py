@@ -37,25 +37,8 @@ def raw_text(text):
 	return text
 
 """
-	Function which scrapes the top 388 rap albums' artist form Rate Your Music
-"""
-def get_rap_artists_old():
-	url = "http://rateyourmusic.com/list/ChrisPC/the_500_greatest_hip_hop_albums__plus_the_other_ones_that_are_honorable_mention_/"
-	results = []
-
-	#get results from all the pages
-	for i in range(0,4): 
-		temp_url = url + str(i) + "/"
-		source = hit_page(temp_url)	
-		artists = source.findAll("h4") #hack to ignore the first element
-		for a in artists[1:-1]:
-			results.append(str(a.text.encode('utf-8'))) #convert to utf for comprehension
-	return results
-
-
-"""
 	Function which scrapes the top rap artists from 1989-2013 from Wikipedia
-	NOTE: The output is not perfect
+	NOTE: The output is not perfect, but sufficient - verify output
 """
 def get_rap_artists():
 	urls = [
@@ -74,19 +57,21 @@ def get_rap_artists():
 		row_count = 1
 
 		# hack to find the artists in a wikipedia table
-		while row_count < len(rows):
-			data = rows[row_count].findAll('td')
-			if row_count == 1:
-				artists.append(data[1].text.split(" featuring")[0])
-			else:
-				artists.append(data[0].text.split(" featuring")[0])
-			row_count += 1
+		for row in rows[1:-1]:
+			data = row.findAll('td')
+			
+			# there are two places the artist name could be stored
+			cand1 = data[1].text.split(" featuring")[0].encode('utf-8')
+			cand2 = data[0].text.split(" featuring")[0].encode('utf-8')
 	
-	#write to disk
-	text_file = open("artists.txt", "w")
-	for artist in artists:
-		text_file.write(artist.encode('utf-8') + "\n")
-	text_file.close()
+			# easy way to identify which one
+			if not cand1[-1].isalpha():
+				artists.append(cand2)
+			else:
+				artists.append(cand1)
+
+	
+	return artists
 
 """
 	Function which accepts an artists name and return URLs for top 20 songs
