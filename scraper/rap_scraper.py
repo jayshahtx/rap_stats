@@ -12,6 +12,9 @@ from time import sleep
 from random import random
 import re
 
+#misc
+from sets import Set
+
 #debugging
 import pdb
 
@@ -36,9 +39,24 @@ def raw_text(text):
 	text = ' '.join(text.split())
 	return text
 
+
+"""
+	Function which checks the source of a page and determines if the artist
+	exists in RapGenius' dataset or not
+"""
+def is_valid_artist(source):
+	results = source.find('h3',attrs={'class':'results_header'})
+	# convert results to string object
+	results = raw_text(results.get_text())
+	# if the first word is 'results', that means no match occured
+	if results[0] == 'results':
+		return False
+	else:
+		return True
+
 """
 	Function which scrapes the top rap artists from 1989-2013 from Wikipedia
-	NOTE: The output is not perfect, but sufficient - verify output
+	NOTE: The output is not perfect, but sufficient - manually verify output
 """
 def get_rap_artists():
 	urls = [
@@ -47,11 +65,12 @@ def get_rap_artists():
 	"http://en.wikipedia.org/wiki/List_of_Billboard_Hot_Rap_Songs_number-one_hits_of_the_2010s"
 	]
 
-	artists = []
+	artists = Set([])
 	
 	# go through each page
 	for url in urls:
 		source = hit_page(url)
+
 		# get the table with all the artists
 		rows = source.findAll('table')[2].findAll('tr')
 		row_count = 1
@@ -59,18 +78,23 @@ def get_rap_artists():
 		# hack to find the artists in a wikipedia table
 		for row in rows[1:-1]:
 			data = row.findAll('td')
-			
 			# there are two places the artist name could be stored
 			cand1 = data[1].text.split(" featuring")[0].encode('utf-8')
 			cand2 = data[0].text.split(" featuring")[0].encode('utf-8')
 	
 			# easy way to identify which one
 			if not cand1[-1].isalpha():
-				artists.append(cand2)
+				artists.add(cand2)
 			else:
-				artists.append(cand1)
+				artists.add(cand1)
 
 	
+	#write to disk to verify
+	text_file = open("artists.txt", "w")
+	for artist in artists:
+		text_file.write(artist + "\n")
+	text_file.close()
+
 	return artists
 
 """
@@ -82,16 +106,21 @@ def get_rap_songs(artist):
 	params = urllib.urlencode({
 		'q':artist
 		})
+
+	#get the source and check if its valid
 	source = hit_page(target+params)
-	links = source.findAll('a', attrs={'class':' song_link'})
+	
+	if (is_valid_artist(source)):
+		links = source.findAll('a', attrs={'class':' song_link'})
 
-	#find the URLs where the lyrics are located
-	lyric_links = []
-	for link in links:
-		target = link['href']
-		lyric_links.append(target)
+		#find the URLs where the lyrics are located
+		lyric_links = []
+		for link in links:
+			target = link['href']
+			lyric_links.append(target)
 
-	return lyric_links
+		return lyric_links
+	return None
 
 
 """
@@ -119,4 +148,18 @@ def get_rap_lyrics(song_links):
 
 	driver.close()
 	return out
+
+def testing_func(url):
+	source = hit_page(url)
+	# check to see how many search results there are for this query
+	results = source.find('h3',attrs={'class':'results_header'})
+	# convert results to string object
+	results = raw_text(results.get_text())
+	# if the first word is 'Results', that means no match occured
+	if results[0] == 'results':
+		print "No match"
+	else:
+		print "Match"
+
+
 		
