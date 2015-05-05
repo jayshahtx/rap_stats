@@ -18,18 +18,20 @@ from sets import Set
 #debugging
 import pdb
 
-"""
-	Function which accepts URL and returns BS object
-"""
+
 def hit_page(link):
+	"""
+	Function which accepts URL and returns BS object
+	"""
 	req = urllib2.Request(link, headers={'User-Agent' : "Magic Browser"}) 
 	page = urllib2.urlopen( req )
 	return BeautifulSoup(page)
 
-"""
-	Function which takes lyric text and strips of all formatting
-"""
+
 def raw_text(text):
+	"""
+		Function which takes lyric text and strips of all formatting
+	"""
 	#make lower case
 	text = text.lower()
 	#remove rap genius annotations
@@ -40,11 +42,12 @@ def raw_text(text):
 	return text
 
 
-"""
-	Function which checks the source of a page and determines if the artist
-	exists in RapGenius' dataset or not
-"""
+
 def is_valid_artist(source):
+	"""
+		Function which checks the source of a page and determines if the artist
+		exists in RapGenius' dataset or not
+	"""
 	results = source.find('h3',attrs={'class':'results_header'})
 	# convert results to string object
 	results = raw_text(results.get_text())
@@ -54,11 +57,12 @@ def is_valid_artist(source):
 	else:
 		return True
 
-"""
-	Function which scrapes the top rap artists from 1989-2013 from Wikipedia
-	NOTE: The output is not perfect, but sufficient - manually verify output
-"""
+
 def get_rap_artists():
+	"""
+		Function which scrapes the top rap artists from 1989-2013 from Wikipedia
+		NOTE: The output is not perfect, but sufficient - manually verify output
+	"""
 	urls = [
 	"http://en.wikipedia.org/wiki/List_of_Billboard_number-one_rap_singles_of_the_1980s_and_1990s#1989",
 	"http://en.wikipedia.org/wiki/List_of_Billboard_number-one_rap_singles_of_the_2000s",
@@ -97,10 +101,11 @@ def get_rap_artists():
 
 	return artists
 
-"""
-	Function which accepts an artists name and return URLs for top 20 songs
-"""
+
 def get_rap_songs(artist):
+	"""
+	Function which accepts an artists name and return URLs for top 20 songs
+	"""
 	url = "http://rap.genius.com/"
 	target = url + "search?"
 	params = urllib.urlencode({
@@ -123,11 +128,12 @@ def get_rap_songs(artist):
 	return None
 
 
-"""
-	Function which accepts a link to a song's page on rap genius and scrapes
-	its lyrics in raw text
-"""
+
 def get_rap_lyrics(song_links):
+	"""
+		Function which accepts a link to a song's page on rap genius and scrapes
+		its lyrics in raw text
+	"""
 	out = ""
 	driver = webdriver.Firefox()
 	
