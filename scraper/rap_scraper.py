@@ -33,7 +33,7 @@ def raw_text(text):
 		Function which takes lyric text and strips of all formatting
 	"""
 	#make lower case
-	text = text.lower()
+	# text = text.lower()
 	#remove rap genius annotations
 	text = re.sub(r'\[(.*)\]',"",text)
 	#remove extra whitespace
@@ -64,7 +64,7 @@ def get_top_songs():
 		NOTE: The output is not perfect, but sufficient - manually verify output
 	"""
 	urls = [
-	# "http://en.wikipedia.org/wiki/List_of_Billboard_number-one_rap_singles_of_the_1980s_and_1990s#1989",
+	"http://en.wikipedia.org/wiki/List_of_Billboard_number-one_rap_singles_of_the_1980s_and_1990s#1989",
 	"http://en.wikipedia.org/wiki/List_of_Billboard_number-one_rap_singles_of_the_2000s",
 	"http://en.wikipedia.org/wiki/List_of_Billboard_Hot_Rap_Songs_number-one_hits_of_the_2010s"
 	]
@@ -134,14 +134,14 @@ def get_top_songs():
 	return artists
 
 
-def get_rap_link(song, artist):
+def get_rap_links(song, artist):
 	"""
-	Function which accepts an artists name and return URLs for top 20 songs
+	Function which accepts an artists name and return URLs for top 5 songs
 	"""
 	url = "http://rap.genius.com/"
 	target = url + "search?"
 	params = urllib.urlencode({
-		'q':song + ' - ' + artist
+		'q': artist
 		})
 
 	#get the source and check if its valid
@@ -149,39 +149,42 @@ def get_rap_link(song, artist):
 	
 	if (is_valid_artist(source)):
 		links = source.findAll('a', attrs={'class':' song_link'})
-		target_link = links[0]['href']
-		#find the URLs where the lyrics are located
-		# lyric_links = []
-		# for link in links:
-		# 	target = link['href']
-		# 	lyric_links.append(target)
+		max_songs = min(5,len(links))
 
-		return target_link
+		# target_link = links[0]['href']
+		#find the URLs where the lyrics are located
+		lyric_links = []
+		for link in links[:max_songs]:
+			target = link['href']
+			lyric_links.append(target)
+
+		return lyric_links
 	return None
 
 
 
-def get_rap_lyrics(song_link):
+def get_rap_lyrics(song_links):
 	"""
 		Function which accepts a link to a song's page on rap genius and scrapes
 		its lyrics in raw text
 	"""
 	out = ""
-	driver = webdriver.Firefox()
+	driver = webdriver.PhantomJS()
 	
-	#get the lyrics for each song
-	# we need to use selenium so the page actually populates
-	driver.get(song_link)
-	driver.implicitly_wait(5)
-	sleep(2*random()) # fake a human
+	for song_link in song_links:
+		#get the lyrics for each song
+		# we need to use selenium so the page actually populates
+		driver.get(song_link)
+		driver.implicitly_wait(5)
+		sleep(2*random()) # fake a human
 
-	lyrics = driver.find_elements_by_class_name('lyrics')
-	text = ""
-	for lyric in lyrics:
-		source = BeautifulSoup(lyric.get_attribute('innerHTML'))
-		text += source.text
-	text = raw_text(text)
-	out += text
+		lyrics = driver.find_elements_by_class_name('lyrics')
+		text = ""
+		for lyric in lyrics:
+			source = BeautifulSoup(lyric.get_attribute('innerHTML'))
+			text += source.text
+		text = raw_text(text)
+		out += text
 
 	driver.close()
 	return out

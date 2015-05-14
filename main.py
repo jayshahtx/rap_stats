@@ -4,7 +4,7 @@ import sys
 
 # scraping
 from scraper.rap_scraper import get_top_songs
-from scraper.rap_scraper import get_rap_link
+from scraper.rap_scraper import get_rap_links
 from scraper.rap_scraper import get_rap_lyrics
 
 #gender
@@ -38,17 +38,18 @@ def scrape():
 		
 		try:
 			print "\nScraping for %s, %s of %s"%(artist, count, total)
+			
 			#get all songs for artist
-			song_link = get_rap_link(result['song'], result['artist'])
+			song_links = get_rap_links(result['song'], result['artist'])
 
 			# save lyrics if songs were actually found for this artist
-			if song_link:
-
+			if song_links:
+				
 				#get all lyrics for song
-				lyrics = get_rap_lyrics(song_link)
+				lyrics = get_rap_lyrics(song_links)
 
 				#save the lyrics to disk
-				save(year+"-"+artist+"-"+song,lyrics)
+				save(year+"-"+artist,lyrics)
 
 			else:
 				print "\n%s not found in Rap Genius...skipping \n"%(artist)
