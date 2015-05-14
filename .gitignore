@@ -1,4 +1,7 @@
+*.log
+*.csv
 *.DS_Store
 *.pyc
 *.txt
+*.p
 /lyrics
