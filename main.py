@@ -8,7 +8,7 @@ from scraper.rap_scraper import get_rap_links
 from scraper.rap_scraper import get_rap_lyrics
 
 #gender
-from gender.gender import get_count
+from counter.counter import get_count
 
 
 #misc
@@ -23,7 +23,7 @@ def save(name,text):
 	text_file.write(text.encode('utf-8'))
 	text_file.close()
 
-#scrape top 20 song lyrics for top 400 rap artists
+# get lyrics to top rap songs from 1989-2014
 def scrape():
 	#get all artists
 	results = get_top_songs()
@@ -63,8 +63,8 @@ def scrape():
 		count+=1
 
 def main():
-	# scrape()
-	get_count("female_names")
+	scrape()
+	# get_count("female_names")
 
 if __name__ == '__main__':
 	main()

@@ -57,6 +57,12 @@ def is_valid_artist(source):
 	else:
 		return True
 
+def is_right_song(source):
+	"""
+		Function which makes sure lyrics are of the right song
+	"""
+	pass
+
 
 def get_top_songs():
 	"""
@@ -120,10 +126,6 @@ def get_top_songs():
 			results.append(result)
 
 	return results
-
-	
-			
-
 	
 	#write to disk to verify
 	text_file = open("artists.txt", "w")
@@ -134,36 +136,42 @@ def get_top_songs():
 	return artists
 
 
-def get_rap_links(song, artist):
+def get_rap_link(song, artist):
 	"""
-	Function which accepts an artists name and return URLs for top 5 songs
+	Function which accepts an artists name and return URLs for top song
 	"""
 	url = "http://rap.genius.com/"
 	target = url + "search?"
 	params = urllib.urlencode({
-		'q': artist
+		'q': artist + "-" + song
 		})
 
 	#get the source and check if its valid
 	source = hit_page(target+params)
 	
 	if (is_valid_artist(source)):
-		links = source.findAll('a', attrs={'class':' song_link'})
-		max_songs = min(5,len(links))
+		result = {}
+		result['link'] = source.find('a', attrs={'class':' song_link'})
+		result['artist'] = artist
+		result['song'] = song
+		return result
 
-		# target_link = links[0]['href']
-		#find the URLs where the lyrics are located
-		lyric_links = []
-		for link in links[:max_songs]:
-			target = link['href']
-			lyric_links.append(target)
+		# links = source.findAll('a', attrs={'class':' song_link'})
+		# max_songs = min(5,len(links))
 
-		return lyric_links
+		# # target_link = links[0]['href']
+		# #find the URLs where the lyrics are located
+		# lyric_links = []
+		# for link in links[:max_songs]:
+		# 	target = link['href']
+		# 	lyric_links.append(target)
+
+		# return lyric_links
 	return None
 
 
 
-def get_rap_lyrics(song_links):
+def get_rap_lyrics(song_link):
 	"""
 		Function which accepts a link to a song's page on rap genius and scrapes
 		its lyrics in raw text
@@ -172,12 +180,19 @@ def get_rap_lyrics(song_links):
 	driver = webdriver.PhantomJS()
 	
 	for song_link in song_links:
+
+		# use BS to get the song name and artist
+		source = hit_page(song_link)
+		artist_name = raw_text(source.find(attrs={'class':'text_title'}).text)
+		song_name = raw_text(source.find(attrs={'class':'text_artist'}).text)
+
 		#get the lyrics for each song
 		# we need to use selenium so the page actually populates
 		driver.get(song_link)
 		driver.implicitly_wait(5)
 		sleep(2*random()) # fake a human
 
+		pdb.set_trace()
 		lyrics = driver.find_elements_by_class_name('lyrics')
 		text = ""
 		for lyric in lyrics:
