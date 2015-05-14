@@ -8,7 +8,7 @@ from scraper.rap_scraper import get_rap_links
 from scraper.rap_scraper import get_rap_lyrics
 
 #gender
-from gender.gender import get_name_count
+from gender.gender import get_count
 
 
 #misc
@@ -62,15 +62,9 @@ def scrape():
 
 		count+=1
 
-def count_female_refs():
-	get_name_count()
-
-def gender_count():
-	pass
-
 def main():
 	# scrape()
-	count_female_refs()
+	get_count("female_names")
 
 if __name__ == '__main__':
 	main()
