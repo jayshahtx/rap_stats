@@ -12,7 +12,7 @@ def get_corpus_dict(corpus):
     if corpus == "female_names":
         file_name = "all_female_names.txt"
     else:
-        file_name = "all_explicit_words.txt"
+        file_name = "female_explicit_words.txt"
 
     # put all names in a dictionary and return
     corpus_dict = {}
@@ -22,7 +22,7 @@ def get_corpus_dict(corpus):
             corpus_dict[str(line).strip("\\\n").lower()] = ""
     return corpus_dict
 
-def check_for_occurences(directory, artist_name, artist_dict, corpus_dict):
+def check_for_occurences(directory, song, song_dict, corpus_dict):
     """
         Fn which looks for occurences of target words and associates them
         with an artist name
@@ -37,51 +37,52 @@ def check_for_occurences(directory, artist_name, artist_dict, corpus_dict):
             if dict_type != "female_names":
                 for word in line.split(" "):
                     if word.lower() in corpus_dict.keys():
-                        artist_dict[artist_name][word] = (
-                            artist_dict[artist_name].get(word,0) + 1
+                        song_dict[song][word] = (
+                            song_dict[song].get(word,0) + 1
                             )
 
             # search through another corpus, word doesn't have to be capitalized
             else:
                 for word in line.split(" "):
                     if word[0].upper() and word.lower() in corpus_dict.keys():
-                        artist_dict[artist_name][word] = (
-                            artist_dict[artist_name].get(word,0) + 1
+                        song_dict[song][word] = (
+                            song_dict[song].get(word,0) + 1
                             )
 
 def get_count(corpus):
     """
         Counts the # of occurences each artist makes to a word in the specified
         corpus, returns two dicts:
-            K: artist_name V: count of references
-            K: artist_name V: year they first reached top rap song
+            K: song_name V: count of references
+            K: song_name V: year they first reached top rap song
     """
     corpus_dict = get_corpus_dict(corpus)
-    artist_dict = {}
+    song_dict = {}
     year_dict = {}
-
+    
     # loop through all text files of song lyrics
     for root, dirs, files in os.walk("lyrics/"):
         for file in fnmatch.filter(files, "*.txt"):
 
             # pull out the artist name and compose file path
             directory = os.path.join(root,file)
-            artist_name = str(directory).split("-")[1].strip(".txt")
-            year = str(directory).split("/")[1].split("-")[0]
+            blocks = str(directory).split("#")
+            year = blocks[0].strip(" lyrics/").strip()
+            song = blocks[1]
+            artist_name = blocks[2].strip(".txt")
 
-            # only record data for artist 1x, even if we see them more than once
-            artist_dict[artist_name] = {}
+            # only record data for a song 1x, even if we see them more than once
+            song_dict[song] = {}
 
-            # store the year this artist first appeared in top
-            if artist_name not in year_dict:
-                year_dict[artist_name] = year
+            # store the year this song appeared in top
+            if song not in year_dict:
+                year_dict[song] = year
 
-            check_for_occurences(directory, artist_name, artist_dict, corpus_dict)
+            check_for_occurences(directory, song, song_dict, corpus_dict)
 
     # print out the values for easy viewing in excel
-    for artist in artist_dict.keys():
-        s = sum(artist_dict[artist].values())
-        year =year_dict[artist]
-        print "%s, %s, %s"%(artist, year, s)
-
-    pdb.set_trace()
+    # for song in song_dict.keys():
+    #     s = sum(song_dict[song].values())
+    #     year =year_dict[song]
+    #     print "%s, %s, %s"%(song, year, s)
+    return song_dict, year_dict

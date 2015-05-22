@@ -135,9 +135,9 @@ def get_top_songs():
 		y = result['year']
 		finalout += s + " !#! " + a + " !#! " + y + "\n"
 
-	text_file = open("songs.txt", "w")
-	text_file.write(finalout)
-	text_file.close()
+	# text_file = open("songs.txt", "w")
+	# text_file.write(finalout)
+	# text_file.close()
 	raw_input("Dumped output to songs.txt file, press enter after verifying data")
 
 
@@ -153,13 +153,15 @@ def get_rap_link(song, artist):
 
 	#get the source and check if its valid
 	source = hit_page(target+params)
-	
-	if (is_valid_artist(source)):
-		result = {}
-		result['link'] = source.find('a', attrs={'class':' song_link'})['href']
-		result['artist'] = artist
-		result['song'] = song
-		return result
+	try:
+		if (is_valid_artist(source)):
+			result = {}
+			result['link'] = source.find('a', attrs={'class':' song_link'})['href']
+			result['artist'] = artist
+			result['song'] = song
+			return result
+	except:
+		print "Error occured for %s - %s, skipping"%(artist, song)
 
 		# links = source.findAll('a', attrs={'class':' song_link'})
 		# max_songs = min(5,len(links))

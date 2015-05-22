@@ -7,13 +7,15 @@ from scraper.rap_scraper import get_top_songs
 from scraper.rap_scraper import get_rap_link
 from scraper.rap_scraper import get_rap_lyrics
 
-#gender
+# cleaning/organizing data
 from counter.counter import get_count
 
+# exporting/visualizing data
+from visualizer.visualize import visualize, custom_data, graph_from_file
 
 #misc
 from time import sleep
-
+import pickle
 import pdb
 
 def load_top_songs():
@@ -67,17 +69,25 @@ def scrape():
 		else:
 			print "\n%s not found in Rap Genius...skipping \n"%(artist)
 
-		# except:
-  #  			e = sys.exc_info()[0]
-  #  			print "An error occured: %s"%(e)
-  #  			sleep(10)
-
 
 		count+=1
 
 def main():
-	scrape()
-	# get_count("female_names")
+	# scrape()
+	# p_song_dict, p_year_dict = get_count("profanity")
+	# f_song_dict, f_year_dict = get_count("female_names")
+	# data = [p_song_dict, f_song_dict, p_year_dict]
+	# pickle.dump(data, open("master_data_f_profanity.p", "wb"))
+
+	# data = pickle.load(open("master_data_f_profanity.p", "rb"))
+	# custom_data(data[1], data[0], data[2])
+
+		# visualize(data[1], data[0], data[2])
+
+	# csv = pickle.load(open("csv_of_data.p", "rb"))
+	# from visualizer.visualize import graph
+	graph_from_file()
+
 
 if __name__ == '__main__':
 	main()
